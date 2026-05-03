@@ -10,8 +10,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict
 
-from ortools.sat.python import cp_model
-
 from . import planning
 from .config_model import MatchConfig
 from .planning import ALL_POSITIONS, OUTFIELD_POSITIONS, SegmentPlan
@@ -67,6 +65,10 @@ def build_schedule_solver(
     fairness_band_blocks: int = 0,
     max_consecutive_bench_blocks: int = 1,
 ) -> tuple[list[SegmentPlan], int]:
+    # Import lazily to avoid importing heavy solver deps (and their warnings)
+    # when users only run heuristic flows.
+    from ortools.sat.python import cp_model
+
     match = planning.ensure_match_config(cfg)
 
     players = list(match.players.keys())
