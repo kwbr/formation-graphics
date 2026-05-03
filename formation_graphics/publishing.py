@@ -53,7 +53,9 @@ def draw_segment_on_axis(
         ax.add_patch(Circle((x, y), marker_r, facecolor="white", edgecolor="black", linewidth=1.2))
 
         if player in incoming_players:
-            ax.add_patch(Circle((x, y), marker_r + 0.013, fill=False, edgecolor="black", linewidth=2.2))
+            ax.add_patch(
+                Circle((x, y), marker_r + 0.013, fill=False, edgecolor="black", linewidth=2.2)
+            )
         if player in moved_players:
             ax.add_patch(
                 Circle(
@@ -66,29 +68,67 @@ def draw_segment_on_axis(
                 )
             )
 
-        ax.text(x, y, f"{pos}\n{player}", ha="center", va="center", color="black", fontsize=font_size, weight="bold")
+        ax.text(
+            x,
+            y,
+            f"{pos}\n{player}",
+            ha="center",
+            va="center",
+            color="black",
+            fontsize=font_size,
+            weight="bold",
+        )
 
     on_field = set(segment.lineup.values())
     bench = sorted([p for p in all_players if p not in on_field])
     half_offset = 0.0 if segment.half == 1 else 20.0
 
     if compact:
-        ax.set_title(
-            f"H{segment.half} S{segment.half_segment_index} ({segment.start_min - half_offset:.1f}-{segment.end_min - half_offset:.1f})",
-            fontsize=10,
-            weight="bold",
+        compact_title = (
+            f"H{segment.half} S{segment.half_segment_index} "
+            f"({segment.start_min - half_offset:.1f}-{segment.end_min - half_offset:.1f})"
         )
-        ax.text(0.01, -0.08, f"Bench: {', '.join(bench) if bench else 'None'}", transform=ax.transAxes, fontsize=8, color="black")
+        ax.set_title(compact_title, fontsize=10, weight="bold")
+        ax.text(
+            0.01,
+            -0.08,
+            f"Bench: {', '.join(bench) if bench else 'None'}",
+            transform=ax.transAxes,
+            fontsize=8,
+            color="black",
+        )
     else:
-        ax.text(0.01, -0.08, f"Bench: {', '.join(bench) if bench else 'None'}", transform=ax.transAxes, fontsize=10, color="black")
+        ax.text(
+            0.01,
+            -0.08,
+            f"Bench: {', '.join(bench) if bench else 'None'}",
+            transform=ax.transAxes,
+            fontsize=10,
+            color="black",
+        )
         incoming_label = ", ".join(sorted(incoming_players)) if incoming_players else "None"
-        ax.text(0.01, -0.13, f"Coming on (solid ring): {incoming_label}", transform=ax.transAxes, fontsize=10, color="black")
+        ax.text(
+            0.01,
+            -0.13,
+            f"Coming on (solid ring): {incoming_label}",
+            transform=ax.transAxes,
+            fontsize=10,
+            color="black",
+        )
         moved_label = ", ".join(sorted(moved_players)) if moved_players else "None"
-        ax.text(0.01, -0.18, f"Position change (dashed ring): {moved_label}", transform=ax.transAxes, fontsize=10, color="black")
+        ax.text(
+            0.01,
+            -0.18,
+            f"Position change (dashed ring): {moved_label}",
+            transform=ax.transAxes,
+            fontsize=10,
+            color="black",
+        )
+        abs_range = f"{segment.start_min:.1f}-{segment.end_min:.1f}"
+        half_range = f"{segment.start_min - half_offset:.1f}-{segment.end_min - half_offset:.1f}"
         title = (
             f"Half {segment.half} Segment {segment.half_segment_index} "
-            f"(global {segment.global_block}, abs {segment.start_min:.1f}-{segment.end_min:.1f} min, "
-            f"half {segment.start_min - half_offset:.1f}-{segment.end_min - half_offset:.1f})"
+            f"(global {segment.global_block}, abs {abs_range} min, half {half_range})"
         )
         ax.set_title(title, fontsize=14, weight="bold")
 
@@ -107,7 +147,14 @@ def draw_segment_image(
     moved_players: set[str] | None = None,
 ) -> None:
     fig, ax = plt.subplots(figsize=(10, 6))
-    draw_segment_on_axis(ax, segment, all_players, incoming_players=incoming_players, moved_players=moved_players, compact=False)
+    draw_segment_on_axis(
+        ax,
+        segment,
+        all_players,
+        incoming_players=incoming_players,
+        moved_players=moved_players,
+        compact=False,
+    )
     fig.tight_layout()
     fig.savefig(out_path, dpi=180, bbox_inches="tight")
     plt.close(fig)
@@ -125,7 +172,7 @@ def compute_transition_markers(segments: List[SegmentPlan]) -> List[Tuple[set[st
         incoming = set() if prev_on_field is None else (current_on_field - prev_on_field)
         moved = set()
         if prev_player_pos is not None:
-            for player in (current_on_field & (prev_on_field or set())):
+            for player in current_on_field & (prev_on_field or set()):
                 if current_player_pos[player] != prev_player_pos.get(player):
                     moved.add(player)
 
@@ -136,7 +183,9 @@ def compute_transition_markers(segments: List[SegmentPlan]) -> List[Tuple[set[st
     return markers
 
 
-def write_half_sheets_a4(segments: List[SegmentPlan], all_players: List[str], out_dir: Path, game_id: str) -> None:
+def write_half_sheets_a4(
+    segments: List[SegmentPlan], all_players: List[str], out_dir: Path, game_id: str
+) -> None:
     markers = compute_transition_markers(segments)
 
     for half in (1, 2):
@@ -167,13 +216,20 @@ def write_half_sheets_a4(segments: List[SegmentPlan], all_players: List[str], ou
         for slot, idx in enumerate(idxs):
             s = segments[idx]
             incoming, moved = markers[idx]
-            draw_segment_on_axis(axes_list[slot], s, all_players, incoming_players=incoming, moved_players=moved, compact=True)
+            draw_segment_on_axis(
+                axes_list[slot],
+                s,
+                all_players,
+                incoming_players=incoming,
+                moved_players=moved,
+                compact=True,
+            )
 
-        fig.suptitle(
-            f"{game_id} - Half {half} Rotation Sheet (A4)\nSolid ring=coming on, dashed ring=position change",
-            fontsize=12,
-            weight="bold",
+        suptitle = (
+            f"{game_id} - Half {half} Rotation Sheet (A4)\n"
+            "Solid ring=coming on, dashed ring=position change"
         )
+        fig.suptitle(suptitle, fontsize=12, weight="bold")
         fig.tight_layout(rect=(0, 0, 1, 0.96))
         fig.savefig(out_dir / f"half{half}_sheet_a4.pdf")
         fig.savefig(out_dir / f"half{half}_sheet_a4.png", dpi=300)
@@ -181,7 +237,17 @@ def write_half_sheets_a4(segments: List[SegmentPlan], all_players: List[str], ou
 
 
 def write_schedule_csv(segments: List[SegmentPlan], all_players: List[str], path: Path) -> None:
-    fields = ["half", "half_segment_index", "global_block", "start_min", "end_min", "half_start_min", "half_end_min", *ALL_POSITIONS, "bench"]
+    fields = [
+        "half",
+        "half_segment_index",
+        "global_block",
+        "start_min",
+        "end_min",
+        "half_start_min",
+        "half_end_min",
+        *ALL_POSITIONS,
+        "bench",
+    ]
     with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
         writer.writeheader()
@@ -208,7 +274,14 @@ def compute_player_stats(
     segments: List[SegmentPlan],
     all_players: List[str],
     players_cfg: dict[str, PlayerConfig],
-) -> tuple[Dict[str, float], Dict[str, float], Dict[str, float], Dict[str, int], Dict[str, int], Dict[str, int]]:
+) -> tuple[
+    Dict[str, float],
+    Dict[str, float],
+    Dict[str, float],
+    Dict[str, int],
+    Dict[str, int],
+    Dict[str, int],
+]:
     total_minutes = {p: 0.0 for p in all_players}
     gk_minutes = {p: 0.0 for p in all_players}
     outfield_minutes = {p: 0.0 for p in all_players}
@@ -235,7 +308,14 @@ def compute_player_stats(
                 if pos not in prefs and MIRROR.get(pos) not in prefs:
                     pref_deviations[p] += 1
 
-    return total_minutes, gk_minutes, outfield_minutes, pref_deviations, segments_played, segments_benched
+    return (
+        total_minutes,
+        gk_minutes,
+        outfield_minutes,
+        pref_deviations,
+        segments_played,
+        segments_benched,
+    )
 
 
 def write_player_stats_csv(
@@ -244,11 +324,24 @@ def write_player_stats_csv(
     players_cfg: dict[str, PlayerConfig],
     out_path: Path,
 ) -> None:
-    total_minutes, gk_minutes, outfield_minutes, pref_deviations, segments_played, segments_benched = compute_player_stats(
-        segments, all_players, players_cfg
-    )
+    (
+        total_minutes,
+        gk_minutes,
+        outfield_minutes,
+        pref_deviations,
+        segments_played,
+        segments_benched,
+    ) = compute_player_stats(segments, all_players, players_cfg)
 
-    fields = ["player", "total_minutes", "gk_minutes", "outfield_minutes", "segments_played", "segments_benched", "pref_deviation_segments"]
+    fields = [
+        "player",
+        "total_minutes",
+        "gk_minutes",
+        "outfield_minutes",
+        "segments_played",
+        "segments_benched",
+        "pref_deviation_segments",
+    ]
     with out_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
         writer.writeheader()
@@ -276,13 +369,20 @@ def write_summary(
     global_block_count: int,
     out_path: Path,
 ) -> None:
-    total_minutes, gk_minutes, outfield_minutes, pref_deviations, _segments_played, _segments_benched = compute_player_stats(
-        segments, all_players, players_cfg
-    )
+    (
+        total_minutes,
+        gk_minutes,
+        outfield_minutes,
+        pref_deviations,
+        _segments_played,
+        _segments_benched,
+    ) = compute_player_stats(segments, all_players, players_cfg)
 
     non_goalies = [p for p in all_players if p not in {gk1, gk2}]
     non_goalie_outfield = [outfield_minutes[p] for p in non_goalies]
-    fairness_gap = max(non_goalie_outfield) - min(non_goalie_outfield) if non_goalie_outfield else 0.0
+    fairness_gap = (
+        max(non_goalie_outfield) - min(non_goalie_outfield) if non_goalie_outfield else 0.0
+    )
 
     lines = []
     lines.append("Formation Scheduler Summary")
@@ -299,7 +399,8 @@ def write_summary(
 
     for p in all_players:
         lines.append(
-            f"- {p}: total={total_minutes[p]:.2f}, GK={gk_minutes[p]:.2f}, outfield={outfield_minutes[p]:.2f}, pref_deviation_segments={pref_deviations[p]}"
+            f"- {p}: total={total_minutes[p]:.2f}, GK={gk_minutes[p]:.2f}, "
+            f"outfield={outfield_minutes[p]:.2f}, pref_deviation_segments={pref_deviations[p]}"
         )
 
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")

@@ -49,3 +49,18 @@ uv run formation-graphics solver --max-consecutive-bench 1
 
 Outputs are written to `output/<game_id>/` and `output/<game_id>_solver/`.
 
+## Dev niceties
+
+Run tests with pytest:
+
+```bash
+uv run pytest
+```
+
+Lint and format with Ruff:
+
+```bash
+uv run ruff check .
+uv run ruff format .
+```
+

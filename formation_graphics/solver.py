@@ -8,16 +8,19 @@ OR-Tools CP-SAT.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict
 
 from ortools.sat.python import cp_model
 
-from . import core as base
 from . import planning
 from .config_model import MatchConfig
+from .planning import ALL_POSITIONS, OUTFIELD_POSITIONS, SegmentPlan
+from .publishing import open_images_in_order, publish_outputs
 
 
-def build_segment_timeline(global_block_count: int, game_minutes: int) -> tuple[list[dict], dict[int, list[int]]]:
+def build_segment_timeline(
+    global_block_count: int, game_minutes: int
+) -> tuple[list[dict], dict[int, list[int]]]:
     halftime = game_minutes / 2
     global_block_minutes = game_minutes / global_block_count
 
@@ -63,14 +66,14 @@ def build_schedule_solver(
     w_pref: int = 1,
     fairness_band_blocks: int = 0,
     max_consecutive_bench_blocks: int = 1,
-) -> tuple[list[base.SegmentPlan], int]:
+) -> tuple[list[SegmentPlan], int]:
     match = planning.ensure_match_config(cfg)
 
     players = list(match.players.keys())
     gk1, gk2 = match.gk1, match.gk2
     non_goalies = [p for p in players if p not in {gk1, gk2}]
 
-    global_block_count = base.choose_global_block_count(len(non_goalies))
+    global_block_count = planning.choose_global_block_count(len(non_goalies))
     segments_meta, by_global = build_segment_timeline(global_block_count, match.game_minutes)
     T = len(segments_meta)
 
@@ -83,18 +86,18 @@ def build_schedule_solver(
     for p in players:
         for t in range(T):
             on[(p, t)] = model.NewBoolVar(f"on_{p}_{t}")
-            for pos in base.ALL_POSITIONS:
+            for pos in ALL_POSITIONS:
                 assign[(p, t, pos)] = model.NewBoolVar(f"a_{p}_{t}_{pos}")
 
     # Exactly one player per position per segment.
     for t in range(T):
-        for pos in base.ALL_POSITIONS:
+        for pos in ALL_POSITIONS:
             model.Add(sum(assign[(p, t, pos)] for p in players) == 1)
 
     # Player on-field linkage.
     for p in players:
         for t in range(T):
-            model.Add(sum(assign[(p, t, pos)] for pos in base.ALL_POSITIONS) == on[(p, t)])
+            model.Add(sum(assign[(p, t, pos)] for pos in ALL_POSITIONS) == on[(p, t)])
 
     # Exactly 7 players on field.
     for t in range(T):
@@ -128,7 +131,7 @@ def build_schedule_solver(
             t1, t2 = idxs
             for p in non_goalies:
                 model.Add(on[(p, t1)] == on[(p, t2)])
-                for pos in base.OUTFIELD_POSITIONS:
+                for pos in OUTFIELD_POSITIONS:
                     model.Add(assign[(p, t1, pos)] == assign[(p, t2, pos)])
 
     # Representative on/off per global block.
@@ -154,16 +157,16 @@ def build_schedule_solver(
     for p in players:
         for t in range(T - 1):
             out_t = model.NewBoolVar(f"out_{p}_{t}")
-            out_n = model.NewBoolVar(f"out_{p}_{t+1}")
-            model.Add(out_t == sum(assign[(p, t, pos)] for pos in base.OUTFIELD_POSITIONS))
-            model.Add(out_n == sum(assign[(p, t + 1, pos)] for pos in base.OUTFIELD_POSITIONS))
+            out_n = model.NewBoolVar(f"out_{p}_{t + 1}")
+            model.Add(out_t == sum(assign[(p, t, pos)] for pos in OUTFIELD_POSITIONS))
+            model.Add(out_n == sum(assign[(p, t + 1, pos)] for pos in OUTFIELD_POSITIONS))
 
             both_out = model.NewBoolVar(f"bothout_{p}_{t}")
             model.AddBoolAnd([out_t, out_n]).OnlyEnforceIf(both_out)
             model.AddBoolOr([out_t.Not(), out_n.Not()]).OnlyEnforceIf(both_out.Not())
 
             same_pos_vars = []
-            for pos in base.OUTFIELD_POSITIONS:
+            for pos in OUTFIELD_POSITIONS:
                 s = model.NewBoolVar(f"same_{p}_{t}_{pos}")
                 model.Add(s <= assign[(p, t, pos)])
                 model.Add(s <= assign[(p, t + 1, pos)])
@@ -218,8 +221,8 @@ def build_schedule_solver(
     # 4) Preference penalty (low).
     for p in players:
         for t in range(T):
-            for pos in base.OUTFIELD_POSITIONS:
-                penalty = base.preference_penalty(p, pos, match.players)
+            for pos in OUTFIELD_POSITIONS:
+                penalty = planning.preference_penalty(p, pos, match.players)
                 terms.append(w_pref * penalty * assign[(p, t, pos)])
 
     model.Minimize(sum(terms))
@@ -232,15 +235,15 @@ def build_schedule_solver(
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         raise RuntimeError("Solver could not find a feasible schedule")
 
-    segments: list[base.SegmentPlan] = []
+    segments: list[SegmentPlan] = []
     for t, seg in enumerate(segments_meta):
         lineup: Dict[str, str] = {}
-        for pos in base.ALL_POSITIONS:
+        for pos in ALL_POSITIONS:
             player = next(p for p in players if solver.Value(assign[(p, t, pos)]) == 1)
             lineup[pos] = player
 
         segments.append(
-            base.SegmentPlan(
+            SegmentPlan(
                 half=seg["half"],
                 half_segment_index=seg["half_segment_index"],
                 global_block=seg["global_block"],
@@ -270,7 +273,7 @@ def generate_solver(
         max_consecutive_bench_blocks=max_consecutive_bench_blocks,
     )
 
-    base.publish_outputs(
+    publish_outputs(
         segments=plan.segments,
         cfg=match,
         global_block_count=plan.global_block_count,
@@ -279,8 +282,6 @@ def generate_solver(
     )
 
     if open_images:
-        base.open_images_in_order(out_dir)
+        open_images_in_order(out_dir)
 
     return out_dir
-
-

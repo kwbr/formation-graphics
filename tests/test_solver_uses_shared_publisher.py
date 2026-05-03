@@ -33,10 +33,14 @@ class SolverSharedPublisherTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             output_root = Path(tmp) / "output"
-            with patch("formation_graphics.solver.Path", return_value=output_root), patch(
-                "formation_graphics.solver.build_schedule_solver",
-                return_value=(segments, global_block_count),
-            ), patch("formation_graphics.solver.base.publish_outputs") as publish_mock:
+            with (
+                patch("formation_graphics.solver.Path", return_value=output_root),
+                patch(
+                    "formation_graphics.solver.build_schedule_solver",
+                    return_value=(segments, global_block_count),
+                ),
+                patch("formation_graphics.solver.publish_outputs") as publish_mock,
+            ):
                 solver.generate_solver(cfg)
 
                 publish_mock.assert_called_once()

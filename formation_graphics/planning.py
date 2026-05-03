@@ -164,7 +164,9 @@ def preference_penalty(player: str, position: str, players_cfg: dict[str, Player
     return 100
 
 
-def assign_positions_for_segment(outfield_players: List[str], players_cfg: dict[str, PlayerConfig]) -> Dict[str, str]:
+def assign_positions_for_segment(
+    outfield_players: List[str], players_cfg: dict[str, PlayerConfig]
+) -> Dict[str, str]:
     best_perm = None
     best_score = None
 
@@ -198,7 +200,9 @@ def build_schedule(cfg: MatchConfig | dict[str, Any]) -> Tuple[List[SegmentPlan]
     global_block_count = choose_global_block_count(len(non_goalies))
     global_block_minutes = match.game_minutes / global_block_count
 
-    targets = build_non_goalie_targets(non_goalies, global_block_count, kickoff_non_goalies, order_index)
+    targets = build_non_goalie_targets(
+        non_goalies, global_block_count, kickoff_non_goalies, order_index
+    )
     remaining = dict(targets)
 
     block_non_goalies: List[Tuple[str, ...]] = []
@@ -236,7 +240,9 @@ def build_schedule(cfg: MatchConfig | dict[str, Any]) -> Tuple[List[SegmentPlan]
         block_end = (global_idx + 1) * global_block_minutes
 
         if block_end <= halftime:
-            outfield_assignment = assign_positions_for_segment([gk2, *selected_non_goalies], match.players)
+            outfield_assignment = assign_positions_for_segment(
+                [gk2, *selected_non_goalies], match.players
+            )
             half_counters[1] += 1
             segments.append(
                 SegmentPlan(
@@ -249,7 +255,9 @@ def build_schedule(cfg: MatchConfig | dict[str, Any]) -> Tuple[List[SegmentPlan]
                 )
             )
         elif block_start >= halftime:
-            outfield_assignment = assign_positions_for_segment([gk1, *selected_non_goalies], match.players)
+            outfield_assignment = assign_positions_for_segment(
+                [gk1, *selected_non_goalies], match.players
+            )
             half_counters[2] += 1
             segments.append(
                 SegmentPlan(

@@ -59,10 +59,14 @@ class PlannerSeamTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             output_root = Path(tmp) / "output"
-            with patch("formation_graphics.solver.Path", return_value=output_root), patch(
-                "formation_graphics.solver.planning.plan_match",
-                return_value=fake_plan,
-            ) as plan_match_mock, patch("formation_graphics.solver.base.publish_outputs"):
+            with (
+                patch("formation_graphics.solver.Path", return_value=output_root),
+                patch(
+                    "formation_graphics.solver.planning.plan_match",
+                    return_value=fake_plan,
+                ) as plan_match_mock,
+                patch("formation_graphics.solver.publish_outputs"),
+            ):
                 solver.generate_solver(cfg)
 
                 plan_match_mock.assert_called_once()
