@@ -1,11 +1,11 @@
 # Formation Graphics (7v7)
 
-Generate substitution/formation graphics, CSV schedules, player stats, and A4 printable half sheets.
+Generate a **Match Plan** from a **Match Config**, then publish **Segment Graphics**, **Half Sheet (A4)** pages, **Schedule CSV**, and **Player Stats CSV** artifacts.
 
-## Privacy-safe config workflow
+## Privacy-safe Match Config workflow
 
-- Commit only: `config/game_config.example.json`
-- Keep real names in: `config/game_config.local.json` (gitignored)
+- Commit only the **Example Config**: `config/game_config.example.json`
+- Keep real names in the **Local Config**: `config/game_config.local.json` (gitignored)
 
 Create your private config once:
 
@@ -16,38 +16,38 @@ cp config/game_config.example.json config/game_config.local.json
 
 ## CLI
 
-Initialize private config from template:
+Initialize Local Config from Example Config:
 
 ```bash
 uv run formation-graphics init-config
 ```
 
-Heuristic scheduler:
+Generate Match Plan with Heuristic Strategy:
 
 ```bash
 uv run formation-graphics heuristic --config config/game_config.local.json
 ```
 
-Solver scheduler:
+Generate Match Plan with Solver Strategy:
 
 ```bash
 uv run formation-graphics solver --config config/game_config.local.json
 ```
 
-Open generated images automatically:
+Open generated Segment Graphics automatically:
 
 ```bash
 uv run formation-graphics heuristic --config config/game_config.local.json --open
 uv run formation-graphics solver --config config/game_config.local.json --open
 ```
 
-Solver bench-stint tuning:
+Solver Strategy Bench Stint Cap tuning:
 
 ```bash
 uv run formation-graphics solver --max-consecutive-bench 1
 ```
 
-Outputs are written to `output/<game_id>/` and `output/<game_id>_solver/`.
+Published artifacts are written to `output/<game_id>/` and `output/<game_id>_solver/`.
 
 ## Dev niceties
 
