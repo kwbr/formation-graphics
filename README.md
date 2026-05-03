@@ -14,25 +14,44 @@ cp config/game_config.example.json config/game_config.local.json
 # then edit config/game_config.local.json with real names
 ```
 
-## Run
+## CLI
+
+Initialize private config from template:
+
+```bash
+uv run formation-graphics init-config
+```
 
 Heuristic scheduler:
 
 ```bash
-uv run main.py --config config/game_config.local.json
+uv run formation-graphics heuristic --config config/game_config.local.json
 ```
 
 Solver scheduler:
 
 ```bash
-uv run solver_schedule.py --config config/game_config.local.json
+uv run formation-graphics solver --config config/game_config.local.json
 ```
 
 Open generated images automatically:
 
 ```bash
-uv run main.py --config config/game_config.local.json --open
-uv run solver_schedule.py --config config/game_config.local.json --open
+uv run formation-graphics heuristic --config config/game_config.local.json --open
+uv run formation-graphics solver --config config/game_config.local.json --open
+```
+
+Solver bench-stint tuning:
+
+```bash
+uv run formation-graphics solver --max-consecutive-bench 1
 ```
 
 Outputs are written to `output/<game_id>/` and `output/<game_id>_solver/`.
+
+## Legacy entrypoints
+
+These still work for backward compatibility:
+
+- `uv run main.py`
+- `uv run solver_schedule.py`

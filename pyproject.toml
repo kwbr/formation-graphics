@@ -1,10 +1,21 @@
 [project]
 name = "formation-graphics"
 version = "0.1.0"
-description = "Add your description here"
+description = "Generate 7v7 formation graphics, schedules, and printable sheets"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "matplotlib>=3.10.9",
     "ortools>=9.15.6755",
 ]
+
+[project.scripts]
+formation-graphics = "formation_graphics.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["formation_graphics*"]
+exclude = ["output*", "config*"]

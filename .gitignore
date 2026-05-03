@@ -2,6 +2,7 @@
 output/
 __pycache__/
 *.pyc
+*.egg-info/
 .DS_Store
 
 # Private roster data (contains real player names)
