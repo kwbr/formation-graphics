@@ -1,3 +1,5 @@
 """formation_graphics package."""
 
-__all__ = ["core", "solver"]
+from . import core, planning, publishing, solver
+
+__all__ = ["core", "planning", "publishing", "solver"]

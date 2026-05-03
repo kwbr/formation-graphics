@@ -4,7 +4,8 @@ import argparse
 import shutil
 from pathlib import Path
 
-from . import core, solver
+from . import core, planning, solver
+from .publishing import open_images_in_order
 
 
 def cmd_init_config(args: argparse.Namespace) -> int:
@@ -25,16 +26,16 @@ def cmd_init_config(args: argparse.Namespace) -> int:
 
 
 def cmd_heuristic(args: argparse.Namespace) -> int:
-    cfg = core.load_game_config(Path(args.config))
+    cfg = planning.load_game_config(Path(args.config))
     out_dir = core.generate(cfg)
     print(f"Generated files in: {out_dir}")
     if args.open:
-        core.open_images_in_order(out_dir)
+        open_images_in_order(out_dir)
     return 0
 
 
 def cmd_solver(args: argparse.Namespace) -> int:
-    cfg = core.load_game_config(Path(args.config))
+    cfg = planning.load_game_config(Path(args.config))
     out = solver.generate_solver(
         cfg,
         open_images=args.open,
@@ -49,18 +50,18 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
 
     p_init = sub.add_parser("init-config", help="Create local config from example template")
-    p_init.add_argument("--example", default=str(core.DEFAULT_EXAMPLE_CONFIG_PATH))
-    p_init.add_argument("--output", default=str(core.DEFAULT_LOCAL_CONFIG_PATH))
+    p_init.add_argument("--example", default=str(planning.DEFAULT_EXAMPLE_CONFIG_PATH))
+    p_init.add_argument("--output", default=str(planning.DEFAULT_LOCAL_CONFIG_PATH))
     p_init.add_argument("--force", action="store_true", help="Overwrite output config if it exists")
     p_init.set_defaults(func=cmd_init_config)
 
     p_heur = sub.add_parser("heuristic", help="Generate schedule with heuristic scheduler")
-    p_heur.add_argument("--config", default=str(core.DEFAULT_LOCAL_CONFIG_PATH))
+    p_heur.add_argument("--config", default=str(planning.DEFAULT_LOCAL_CONFIG_PATH))
     p_heur.add_argument("--open", action="store_true", help="Open generated segment images")
     p_heur.set_defaults(func=cmd_heuristic)
 
     p_solver = sub.add_parser("solver", help="Generate schedule with CP-SAT solver")
-    p_solver.add_argument("--config", default=str(core.DEFAULT_LOCAL_CONFIG_PATH))
+    p_solver.add_argument("--config", default=str(planning.DEFAULT_LOCAL_CONFIG_PATH))
     p_solver.add_argument("--open", action="store_true", help="Open generated segment images")
     p_solver.add_argument(
         "--max-consecutive-bench",
