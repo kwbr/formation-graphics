@@ -1,0 +1,17 @@
+{
+  "game_id": "example_game",
+  "game_minutes": 40,
+  "players": {
+    "Player01": { "positions": ["CM", "LM", "RM"] },
+    "Player02": { "positions": ["LB", "RB", "CM"] },
+    "Player03": { "positions": ["ST", "CM", "RM"] },
+    "Player04": { "positions": ["RB", "LB", "RM"] },
+    "Player05": { "positions": ["LM", "CM", "RM"] },
+    "Player06": { "positions": ["ST", "RM", "CM"] },
+    "Player07": { "positions": ["CM", "LB", "RB"] },
+    "Player08": { "positions": ["RM", "LM", "ST"] }
+  },
+  "gk1": "Player01",
+  "gk2": "Player06",
+  "kickoff_starters": ["Player01", "Player02", "Player03", "Player04", "Player05", "Player06", "Player07"]
+}

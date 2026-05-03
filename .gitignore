@@ -1,0 +1,8 @@
+.venv/
+output/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Private roster data (contains real player names)
+config/game_config.local.json
