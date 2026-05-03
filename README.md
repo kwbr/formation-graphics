@@ -49,9 +49,3 @@ uv run formation-graphics solver --max-consecutive-bench 1
 
 Outputs are written to `output/<game_id>/` and `output/<game_id>_solver/`.
 
-## Legacy entrypoints
-
-These still work for backward compatibility:
-
-- `uv run main.py`
-- `uv run solver_schedule.py`
