@@ -151,15 +151,14 @@ def preference_penalty(player: str, position: str, players_cfg: dict[str, Player
     prefs = players_cfg[player].positions
 
     if position in prefs:
-        return prefs.index(position) * 10
+        return 0
 
     mirror = MIRROR.get(position)
     if mirror and mirror in prefs:
-        return prefs.index(mirror) * 10 + 2
+        return 2
 
-    same_line_idxs = [idx for idx, p in enumerate(prefs) if GROUP[p] == GROUP[position]]
-    if same_line_idxs:
-        return min(same_line_idxs) * 10 + 6
+    if any(GROUP[p] == GROUP[position] for p in prefs):
+        return 6
 
     return 100
 

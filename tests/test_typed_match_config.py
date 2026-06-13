@@ -7,6 +7,29 @@ from pathlib import Path
 
 
 class TypedMatchConfigTests(unittest.TestCase):
+    def test_rejects_duplicate_position_choices(self) -> None:
+        from formation_graphics.config_model import parse_match_config
+
+        raw = {
+            "game_id": "duplicate_positions",
+            "game_minutes": 40,
+            "players": {
+                "P1": {"positions": ["CM", "CM"]},
+                "P2": {"positions": ["LB"]},
+                "P3": {"positions": ["ST"]},
+                "P4": {"positions": ["RB"]},
+                "P5": {"positions": ["LM"]},
+                "P6": {"positions": ["RM"]},
+                "P7": {"positions": ["CM"]},
+            },
+            "gk1": "P1",
+            "gk2": "P6",
+            "kickoff_starters": ["P1", "P2", "P3", "P4", "P5", "P6", "P7"],
+        }
+
+        with self.assertRaisesRegex(ValueError, "positions contains duplicates"):
+            parse_match_config(raw)
+
     def test_load_game_config_returns_typed_match_config(self) -> None:
         from formation_graphics.config_model import MatchConfig
         from formation_graphics.planning import load_game_config

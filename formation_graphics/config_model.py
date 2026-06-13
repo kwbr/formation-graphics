@@ -76,6 +76,9 @@ def parse_match_config(data: dict[str, Any]) -> MatchConfig:
             if invalid:
                 errors.append(f"{name}: invalid preferred positions: {invalid}")
                 continue
+            if len(prefs) != len(set(prefs)):
+                errors.append(f"{name}: positions contains duplicates")
+                continue
             typed_players[name] = PlayerConfig(positions=tuple(prefs))
 
     game_id = data.get("game_id")

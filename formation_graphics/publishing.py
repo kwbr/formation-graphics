@@ -26,6 +26,13 @@ def pitch_positions() -> Dict[str, Tuple[float, float]]:
     }
 
 
+def compute_half_offsets(segments: List[SegmentPlan]) -> Dict[int, float]:
+    offsets: Dict[int, float] = {}
+    for segment in segments:
+        offsets[segment.half] = min(segment.start_min, offsets.get(segment.half, segment.start_min))
+    return offsets
+
+
 def draw_segment_on_axis(
     ax,
     segment: SegmentPlan,
@@ -33,6 +40,7 @@ def draw_segment_on_axis(
     incoming_players: set[str] | None = None,
     moved_players: set[str] | None = None,
     compact: bool = False,
+    half_offset: float | None = None,
 ) -> None:
     coords = pitch_positions()
     ax.add_patch(Rectangle((0, 0), 1, 1, facecolor="#f4f4f4", edgecolor="black", linewidth=2))
@@ -81,7 +89,8 @@ def draw_segment_on_axis(
 
     on_field = set(segment.lineup.values())
     bench = sorted([p for p in all_players if p not in on_field])
-    half_offset = 0.0 if segment.half == 1 else 20.0
+    if half_offset is None:
+        half_offset = 0.0 if segment.half == 1 else 20.0
 
     if compact:
         compact_title = (
@@ -145,6 +154,7 @@ def draw_segment_image(
     out_path: Path,
     incoming_players: set[str] | None = None,
     moved_players: set[str] | None = None,
+    half_offset: float | None = None,
 ) -> None:
     fig, ax = plt.subplots(figsize=(10, 6))
     draw_segment_on_axis(
@@ -154,6 +164,7 @@ def draw_segment_image(
         incoming_players=incoming_players,
         moved_players=moved_players,
         compact=False,
+        half_offset=half_offset,
     )
     fig.tight_layout()
     fig.savefig(out_path, dpi=180, bbox_inches="tight")
@@ -187,6 +198,7 @@ def write_half_sheets_a4(
     segments: List[SegmentPlan], all_players: List[str], out_dir: Path, game_id: str
 ) -> None:
     markers = compute_transition_markers(segments)
+    half_offsets = compute_half_offsets(segments)
 
     for half in (1, 2):
         idxs = [i for i, s in enumerate(segments) if s.half == half]
@@ -223,6 +235,7 @@ def write_half_sheets_a4(
                 incoming_players=incoming,
                 moved_players=moved,
                 compact=True,
+                half_offset=half_offsets[s.half],
             )
 
         suptitle = (
@@ -237,6 +250,7 @@ def write_half_sheets_a4(
 
 
 def write_schedule_csv(segments: List[SegmentPlan], all_players: List[str], path: Path) -> None:
+    half_offsets = compute_half_offsets(segments)
     fields = [
         "half",
         "half_segment_index",
@@ -254,7 +268,7 @@ def write_schedule_csv(segments: List[SegmentPlan], all_players: List[str], path
         for s in segments:
             on_field = set(s.lineup.values())
             bench = sorted([p for p in all_players if p not in on_field])
-            half_offset = 0.0 if s.half == 1 else 20.0
+            half_offset = half_offsets[s.half]
             row = {
                 "half": s.half,
                 "half_segment_index": s.half_segment_index,
@@ -437,6 +451,7 @@ def publish_outputs(
     pad = max(2, len(str(max(max_h1, max_h2, 1))))
 
     markers = compute_transition_markers(segments)
+    half_offsets = compute_half_offsets(segments)
     for idx, s in enumerate(segments):
         file_name = f"h{s.half}_segment{s.half_segment_index:0{pad}d}.png"
         incoming, moved = markers[idx]
@@ -447,6 +462,7 @@ def publish_outputs(
             out_dir / file_name,
             incoming_players=incoming,
             moved_players=moved,
+            half_offset=half_offsets[s.half],
         )
 
     write_half_sheets_a4(segments, all_players, out_dir, game_id)

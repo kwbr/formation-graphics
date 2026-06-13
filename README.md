@@ -34,6 +34,25 @@ Generate Match Plan with Solver Strategy:
 uv run formation-graphics solver --config config/game_config.local.json
 ```
 
+Generate a Solver plan with 5-minute blocks:
+
+```bash
+uv run formation-graphics solver --config config/game_config.local.json --preset five-minute
+```
+
+Generate calmer Solver plans that trade some fairness for fewer changes:
+
+```bash
+uv run formation-graphics solver --config config/game_config.local.json --preset steady
+uv run formation-graphics solver --config config/game_config.local.json --preset compromise
+```
+
+Generate a lower-chaos Solver plan with fewer, longer substitution blocks:
+
+```bash
+uv run formation-graphics solver --config config/game_config.local.json --preset low-chaos
+```
+
 Open generated Segment Graphics automatically:
 
 ```bash
@@ -47,7 +66,7 @@ Solver Strategy Bench Stint Cap tuning:
 uv run formation-graphics solver --max-consecutive-bench 1
 ```
 
-Published artifacts are written to `output/<game_id>/` and `output/<game_id>_solver/`.
+Published artifacts are written to `output/<game_id>/`, `output/<game_id>_solver/`, and preset-specific solver directories such as `output/<game_id>_solver_steady/`, `output/<game_id>_solver_compromise/`, `output/<game_id>_solver_five_minute/`, or `output/<game_id>_solver_low_chaos/`.
 
 ## Dev niceties
 

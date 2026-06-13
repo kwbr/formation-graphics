@@ -40,6 +40,7 @@ def cmd_solver(args: argparse.Namespace) -> int:
         cfg,
         open_images=args.open,
         max_consecutive_bench_blocks=args.max_consecutive_bench,
+        preset=args.preset,
     )
     print(f"Generated solver files in: {out}")
     return 0
@@ -64,10 +65,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_solver.add_argument("--config", default=str(planning.DEFAULT_LOCAL_CONFIG_PATH))
     p_solver.add_argument("--open", action="store_true", help="Open generated segment images")
     p_solver.add_argument(
+        "--preset",
+        choices=sorted(solver.SOLVER_PRESETS),
+        default="balanced",
+        help="Solver preset: balanced keeps current behavior; low-chaos uses fewer, longer blocks",
+    )
+    p_solver.add_argument(
         "--max-consecutive-bench",
         type=int,
-        default=1,
-        help="Max consecutive global blocks a non-goalie can be benched (default: 1)",
+        default=None,
+        help="Override max consecutive global blocks a non-goalie can be benched",
     )
     p_solver.set_defaults(func=cmd_solver)
 

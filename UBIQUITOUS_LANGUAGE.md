@@ -25,8 +25,8 @@
 | Term | Definition | Aliases to avoid |
 | --- | --- | --- |
 | **2-3-1 Formation** | The outfield layout LB, RB, LM, CM, RM, ST plus GK. | Generic 7v7 shape |
-| **Position Preference** | An ordered list of outfield positions preferred by a Player. | Best position |
-| **Mirror Fallback** | Side-swap fallback LB↔RB and LM↔RM with lower priority than exact preference. | Any-side swap |
+| **Position Preference** | A set of outfield positions a Player is comfortable playing. The JSON list order is not meaningful. | Best position, ranked preference |
+| **Mirror Fallback** | Side-swap fallback LB↔RB and LM↔RM with lower priority than explicit Position Preference. | Any-side swap |
 | **Incoming Player** | A Player on field now who was off field in the previous Half Segment. | Subbed in |
 | **Position Change** | A Player on field in consecutive Half Segments but in different positions. | Shuffle, move |
 | **Bench Stint** | A consecutive run of Global Blocks where a Non-keeper is off field. | Rest spell |

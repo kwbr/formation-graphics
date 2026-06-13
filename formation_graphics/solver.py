@@ -15,6 +15,37 @@ from .config_model import MatchConfig
 from .planning import ALL_POSITIONS, OUTFIELD_POSITIONS, SegmentPlan
 from .publishing import open_images_in_order, publish_outputs
 
+SOLVER_PRESETS: dict[str, dict[str, int]] = {
+    "balanced": {},
+    "five-minute": {
+        "global_block_count": 8,
+    },
+    "steady": {
+        "global_block_count": 5,
+        "fairness_band_blocks": 1,
+        "max_consecutive_bench_blocks": 1,
+        "w_pos_change": 1500,
+        "w_sub_toggle": 350,
+        "w_fairness": 5,
+    },
+    "compromise": {
+        "global_block_count": 6,
+        "fairness_band_blocks": 1,
+        "max_consecutive_bench_blocks": 1,
+        "w_pos_change": 1750,
+        "w_sub_toggle": 400,
+        "w_fairness": 5,
+    },
+    "low-chaos": {
+        "global_block_count": 4,
+        "fairness_band_blocks": 2,
+        "max_consecutive_bench_blocks": 1,
+        "w_pos_change": 2000,
+        "w_sub_toggle": 500,
+        "w_fairness": 1,
+    },
+}
+
 
 def build_segment_timeline(
     global_block_count: int, game_minutes: int
@@ -64,6 +95,7 @@ def build_schedule_solver(
     w_pref: int = 1,
     fairness_band_blocks: int = 0,
     max_consecutive_bench_blocks: int = 1,
+    global_block_count: int | None = None,
 ) -> tuple[list[SegmentPlan], int]:
     # Import lazily to avoid importing heavy solver deps (and their warnings)
     # when users only run heuristic flows.
@@ -75,7 +107,11 @@ def build_schedule_solver(
     gk1, gk2 = match.gk1, match.gk2
     non_goalies = [p for p in players if p not in {gk1, gk2}]
 
-    global_block_count = planning.choose_global_block_count(len(non_goalies))
+    if global_block_count is None:
+        global_block_count = planning.choose_global_block_count(len(non_goalies))
+    if global_block_count <= 0:
+        raise ValueError("global_block_count must be positive")
+
     segments_meta, by_global = build_segment_timeline(global_block_count, match.game_minutes)
     T = len(segments_meta)
 
@@ -261,18 +297,27 @@ def build_schedule_solver(
 def generate_solver(
     cfg: MatchConfig | dict[str, Any],
     open_images: bool = False,
-    max_consecutive_bench_blocks: int = 1,
+    max_consecutive_bench_blocks: int | None = None,
+    preset: str = "balanced",
 ) -> Path:
     match = planning.ensure_match_config(cfg)
+    if preset not in SOLVER_PRESETS:
+        raise ValueError(f"Unknown solver preset: {preset}")
 
-    out_dir = Path("output") / f"{match.game_id}_solver"
+    solver_options = dict(SOLVER_PRESETS[preset])
+    if max_consecutive_bench_blocks is not None:
+        solver_options["max_consecutive_bench_blocks"] = max_consecutive_bench_blocks
+    solver_options.setdefault("max_consecutive_bench_blocks", 1)
+
+    suffix = "solver" if preset == "balanced" else f"solver_{preset.replace('-', '_')}"
+    out_dir = Path("output") / f"{match.game_id}_{suffix}"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     plan = planning.plan_match(
         match,
         strategy="solver",
         solver_adapter=build_schedule_solver,
-        max_consecutive_bench_blocks=max_consecutive_bench_blocks,
+        **solver_options,
     )
 
     publish_outputs(
@@ -280,7 +325,7 @@ def generate_solver(
         cfg=match,
         global_block_count=plan.global_block_count,
         out_dir=out_dir,
-        game_id=f"{match.game_id}_solver",
+        game_id=f"{match.game_id}_{suffix}",
     )
 
     if open_images:

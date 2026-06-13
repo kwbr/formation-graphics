@@ -1,0 +1,1142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Formation Graphics Config Builder</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --danger: #b91c1c;
+      --danger-soft: #fee2e2;
+      --ok: #047857;
+      --ok-soft: #d1fae5;
+      --pitch: #edf7ed;
+      --pitch-line: #8fb58f;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.4;
+    }
+
+    header {
+      padding: 24px clamp(16px, 3vw, 40px);
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1, h2, h3 { margin: 0; line-height: 1.15; }
+    h1 { font-size: clamp(24px, 4vw, 36px); }
+    h2 { font-size: 18px; }
+    h3 { font-size: 15px; }
+    p { margin: 8px 0 0; color: var(--muted); }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(420px, 1fr) minmax(320px, 460px);
+      align-items: start;
+      gap: 16px;
+      padding: 16px clamp(16px, 3vw, 40px) 40px;
+    }
+
+    section, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    section { padding: 16px; }
+
+    .stack { display: grid; gap: 14px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    label { display: grid; gap: 5px; font-size: 13px; font-weight: 650; }
+
+    input, select, textarea, button {
+      font: inherit;
+      border-radius: 10px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 9px 10px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      font-weight: 650;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    button.ghost { background: transparent; }
+    button.danger { color: var(--danger); border-color: #fecaca; background: #fffafa; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .hint { color: var(--muted); font-size: 12px; }
+    .tiny { font-size: 11px; }
+
+    .player-list {
+      display: grid;
+      gap: 8px;
+      max-height: 520px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .player-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .player-card.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .player-main { min-width: 0; }
+    .player-name {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-weight: 750;
+    }
+
+    .player-name span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .badge.gk { background: #fef3c7; color: #92400e; }
+    .badge.starter { background: var(--ok-soft); color: var(--ok); }
+
+    .player-actions { display: flex; gap: 4px; }
+    .player-actions button { padding: 6px 8px; font-size: 12px; }
+
+    .pitch-wrap { padding: 16px; }
+
+    .pitch {
+      position: relative;
+      width: min(100%, 780px);
+      aspect-ratio: 1 / 1.18;
+      margin: 0 auto;
+      border: 3px solid var(--pitch-line);
+      border-radius: 18px;
+      background:
+        linear-gradient(to bottom, transparent 49.7%, var(--pitch-line) 49.7%, var(--pitch-line) 50.3%, transparent 50.3%),
+        radial-gradient(circle at center, transparent 0 8%, var(--pitch-line) 8.1% 8.7%, transparent 8.8%),
+        var(--pitch);
+      overflow: hidden;
+    }
+
+    .box {
+      position: absolute;
+      left: 23%;
+      width: 54%;
+      height: 13%;
+      border: 2px solid var(--pitch-line);
+      border-top: none;
+      bottom: 0;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .pos {
+      position: absolute;
+      width: 118px;
+      max-width: 26%;
+      min-height: 64px;
+      transform: translate(-50%, -50%);
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      gap: 4px;
+      text-align: center;
+      padding: 9px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .pos button {
+      all: unset;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .pos .code { font-size: 22px; font-weight: 850; letter-spacing: 0.02em; }
+    .pos .desc { color: var(--muted); font-size: 11px; }
+    .pos .rank {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      display: none;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      border: 2px solid #fff;
+      font-size: 13px;
+      font-weight: 850;
+      place-items: center;
+    }
+
+    .pos.selected {
+      border-color: var(--accent);
+      background: #eff6ff;
+    }
+
+    .pos.selected .rank { display: grid; }
+
+    .pos[data-pos="GK"] { left: 50%; top: 91%; opacity: 0.65; }
+    .pos[data-pos="LB"] { left: 30%; top: 70%; }
+    .pos[data-pos="RB"] { left: 70%; top: 70%; }
+    .pos[data-pos="LM"] { left: 21%; top: 46%; }
+    .pos[data-pos="CM"] { left: 50%; top: 46%; }
+    .pos[data-pos="RM"] { left: 79%; top: 46%; }
+    .pos[data-pos="ST"] { left: 50%; top: 20%; }
+
+    .selected-player {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #f9fafb;
+      border: 1px solid var(--line);
+    }
+
+    .position-list {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-height: 34px;
+    }
+
+    .position-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #1e40af;
+      font-weight: 750;
+      font-size: 13px;
+    }
+
+    .position-pill button {
+      padding: 0 2px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+    }
+
+    .coverage {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .coverage-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .coverage-row {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .coverage-code { font-weight: 850; }
+
+    .coverage-bar {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e5e7eb;
+    }
+
+    .coverage-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+    }
+
+    .coverage-count { color: var(--muted); font-size: 12px; font-weight: 750; }
+    .coverage-label {
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .coverage-label.low { color: #92400e; background: #fef3c7; }
+    .coverage-label.ok { color: var(--ok); background: var(--ok-soft); }
+    .coverage-label.crowded { color: #1e40af; background: var(--accent-soft); }
+
+    .line-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .line-card {
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #f9fafb;
+      font-size: 12px;
+    }
+
+    .line-card strong { display: block; margin-bottom: 4px; }
+
+    .matrix-wrap { overflow: auto; }
+
+    .coverage-matrix {
+      width: 100%;
+      min-width: 420px;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 12px;
+    }
+
+    .coverage-matrix th,
+    .coverage-matrix td {
+      padding: 6px;
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .coverage-matrix th:first-child,
+    .coverage-matrix td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      max-width: 150px;
+      text-align: left;
+      background: var(--panel);
+      font-weight: 750;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .coverage-matrix tr.active td:first-child { color: var(--accent); }
+
+    .matrix-cell {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border-radius: 8px;
+      color: transparent;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+    }
+
+    .matrix-cell.on {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .coverage-warning {
+      padding: 8px 10px;
+      border-radius: 10px;
+      color: #92400e;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      font-size: 12px;
+    }
+
+    .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; }
+    .checkline { display: flex; align-items: center; gap: 7px; font-size: 13px; }
+    .checkline input { width: auto; }
+
+    .status {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .status.ok { color: var(--ok); background: var(--ok-soft); border-color: #a7f3d0; }
+    .status.bad { color: var(--danger); background: var(--danger-soft); border-color: #fecaca; }
+
+    .errors { margin: 0; padding-left: 20px; }
+
+    pre {
+      margin: 0;
+      padding: 12px;
+      overflow: auto;
+      max-height: 560px;
+      color: #111827;
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1180px) {
+      main { grid-template-columns: 1fr 1fr; }
+      .output-col { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 780px) {
+      main { grid-template-columns: 1fr; }
+      .split { grid-template-columns: 1fr; }
+      .pos { min-height: 54px; font-size: 12px; }
+      .pos .code { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Formation Graphics Config Builder</h1>
+    <p>Build a Match Config visually. Select a player, click the outfield positions they are comfortable playing, then copy or download the JSON.</p>
+  </header>
+
+  <main>
+    <section class="stack">
+      <div>
+        <h2>Match inputs</h2>
+        <p class="hint">These fields map directly to <code>game_id</code>, <code>game_minutes</code>, keepers, and kickoff starters.</p>
+      </div>
+
+      <div class="split">
+        <label>
+          Game ID
+          <input id="gameId" autocomplete="off">
+        </label>
+        <label>
+          Game minutes
+          <input id="gameMinutes" type="number" min="1" step="1">
+        </label>
+      </div>
+
+      <div class="split">
+        <label>
+          Keeper 1 / half 1 GK
+          <select id="gk1"></select>
+        </label>
+        <label>
+          Keeper 2 / half 2 GK
+          <select id="gk2"></select>
+        </label>
+      </div>
+
+      <div class="row">
+        <button id="addPlayer" class="primary" type="button">Add player</button>
+        <button id="sortPlayers" type="button">Sort A-Z</button>
+      </div>
+
+      <div>
+        <h3>Players</h3>
+        <p class="hint">Choose exactly 7 kickoff starters. Both keepers must be starters.</p>
+      </div>
+      <div id="playerList" class="player-list"></div>
+
+      <details>
+        <summary><strong>Import JSON</strong></summary>
+        <p class="hint">Paste an existing config, or choose a JSON file. The page is standalone, so it does not upload anything.</p>
+        <div class="stack" style="margin-top: 10px;">
+          <input id="fileInput" type="file" accept="application/json,.json">
+          <textarea id="importText" spellcheck="false"></textarea>
+          <div class="row">
+            <button id="loadJson" type="button">Load pasted JSON</button>
+            <button id="loadSample" type="button">Reset to embedded game9 sample</button>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="stack">
+      <div>
+        <h2>Visual position choices</h2>
+        <p class="hint">Select a player on the left. Click LB/RB/LM/CM/RM/ST to toggle comfortable positions. Position order is not meaningful.</p>
+      </div>
+
+      <div id="selectedPlayerPanel" class="selected-player"></div>
+
+      <div class="pitch-wrap panel">
+        <div class="pitch" aria-label="7v7 pitch position picker">
+          <div class="box" aria-hidden="true"></div>
+          <div class="pos" data-pos="GK"><button type="button" disabled><span class="code">GK</span><span class="desc">Set via keepers</span></button><span class="rank"></span></div>
+          <div class="pos" data-pos="LB"><button type="button"><span class="code">LB</span><span class="desc">left back</span></button><span class="rank"></span></div>
+          <div class="pos" data-pos="RB"><button type="button"><span class="code">RB</span><span class="desc">right back</span></button><span class="rank"></span></div>
+          <div class="pos" data-pos="LM"><button type="button"><span class="code">LM</span><span class="desc">left mid</span></button><span class="rank"></span></div>
+          <div class="pos" data-pos="CM"><button type="button"><span class="code">CM</span><span class="desc">centre mid</span></button><span class="rank"></span></div>
+          <div class="pos" data-pos="RM"><button type="button"><span class="code">RM</span><span class="desc">right mid</span></button><span class="rank"></span></div>
+          <div class="pos" data-pos="ST"><button type="button"><span class="code">ST</span><span class="desc">striker</span></button><span class="rank"></span></div>
+        </div>
+      </div>
+
+      <div id="coveragePanel" class="coverage panel"></div>
+    </section>
+
+    <section class="stack output-col">
+      <div>
+        <h2>JSON output</h2>
+        <p class="hint">Save this as <code>config/game_config.local.json</code> or another config file and run the CLI with <code>--config</code>.</p>
+      </div>
+
+      <div id="status" class="status"></div>
+
+      <div class="row">
+        <button id="copyJson" class="primary" type="button">Copy JSON</button>
+        <button id="downloadJson" type="button">Download JSON</button>
+      </div>
+
+      <pre id="outputJson"></pre>
+    </section>
+  </main>
+
+  <script>
+    const OUTFIELD_POSITIONS = ["LB", "RB", "LM", "CM", "RM", "ST"];
+
+    const sampleConfig = {
+      "game_id": "game9",
+      "game_minutes": 40,
+      "players": {
+        "Cali": { "positions": ["RM", "LM", "CM"] },
+        "Annabelle": { "positions": ["CM", "LM", "RM"] },
+        "Philippa": { "positions": ["LB", "RB", "LM", "RM", "CM"] },
+        "Ellie": { "positions": ["RM", "LM", "CM"] },
+        "Matilda": { "positions": ["LM", "CM", "RM"] },
+        "Leni": { "positions": ["ST", "RM", "CM"] },
+        "Myla": { "positions": ["CM", "LB", "RB"] },
+        "Maia": { "positions": ["CM", "ST"] },
+        "Poppy": { "positions": ["LB", "RB", "CM", "ST"] },
+        "Livvy": { "positions": ["RM", "LM", "CM"] },
+        "Juna": { "positions": ["RM", "LM", "ST"] }
+      },
+      "gk1": "Cali",
+      "gk2": "Leni",
+      "kickoff_starters": ["Cali", "Philippa", "Matilda", "Poppy", "Juna", "Maia", "Leni"]
+    };
+
+    let state = configToState(sampleConfig);
+    let selectedId = state.players[0]?.id ?? null;
+
+    const els = {
+      gameId: document.getElementById("gameId"),
+      gameMinutes: document.getElementById("gameMinutes"),
+      gk1: document.getElementById("gk1"),
+      gk2: document.getElementById("gk2"),
+      addPlayer: document.getElementById("addPlayer"),
+      sortPlayers: document.getElementById("sortPlayers"),
+      playerList: document.getElementById("playerList"),
+      selectedPlayerPanel: document.getElementById("selectedPlayerPanel"),
+      coveragePanel: document.getElementById("coveragePanel"),
+      outputJson: document.getElementById("outputJson"),
+      status: document.getElementById("status"),
+      copyJson: document.getElementById("copyJson"),
+      downloadJson: document.getElementById("downloadJson"),
+      importText: document.getElementById("importText"),
+      loadJson: document.getElementById("loadJson"),
+      loadSample: document.getElementById("loadSample"),
+      fileInput: document.getElementById("fileInput")
+    };
+
+    function makeId() {
+      return `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function configToState(config) {
+      return {
+        game_id: String(config.game_id ?? ""),
+        game_minutes: Number.isInteger(config.game_minutes) ? config.game_minutes : 40,
+        gk1: String(config.gk1 ?? ""),
+        gk2: String(config.gk2 ?? ""),
+        kickoff_starters: Array.isArray(config.kickoff_starters) ? [...config.kickoff_starters] : [],
+        players: Object.entries(config.players ?? {}).map(([name, info]) => ({
+          id: makeId(),
+          name,
+          positions: Array.isArray(info?.positions)
+            ? info.positions.filter(pos => OUTFIELD_POSITIONS.includes(pos))
+            : []
+        }))
+      };
+    }
+
+    function stateToConfig() {
+      const players = {};
+      for (const player of state.players) {
+        const name = player.name.trim();
+        if (!name) continue;
+        players[name] = { positions: [...player.positions] };
+      }
+      return {
+        game_id: state.game_id.trim(),
+        game_minutes: Number(state.game_minutes),
+        players,
+        gk1: state.gk1,
+        gk2: state.gk2,
+        kickoff_starters: state.kickoff_starters.filter(name => players[name])
+      };
+    }
+
+    function selectedPlayer() {
+      return state.players.find(player => player.id === selectedId) ?? state.players[0] ?? null;
+    }
+
+    function ensureSelectedPlayer() {
+      if (!state.players.some(player => player.id === selectedId)) {
+        selectedId = state.players[0]?.id ?? null;
+      }
+    }
+
+    function playerNames() {
+      return state.players.map(player => player.name.trim()).filter(Boolean);
+    }
+
+    function syncTopInputsFromState() {
+      els.gameId.value = state.game_id;
+      els.gameMinutes.value = String(state.game_minutes);
+    }
+
+    function syncKeeperSelects() {
+      const names = playerNames();
+      for (const select of [els.gk1, els.gk2]) {
+        const current = select === els.gk1 ? state.gk1 : state.gk2;
+        select.innerHTML = "";
+        const empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = "Choose player";
+        select.appendChild(empty);
+        for (const name of names) {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          select.appendChild(option);
+        }
+        select.value = names.includes(current) ? current : "";
+      }
+      state.gk1 = els.gk1.value;
+      state.gk2 = els.gk2.value;
+    }
+
+    function setStarter(name, checked) {
+      state.kickoff_starters = state.kickoff_starters.filter(starter => starter !== name);
+      if (checked && name) state.kickoff_starters.push(name);
+    }
+
+    function renamePlayer(player, newName) {
+      const oldName = player.name;
+      player.name = newName;
+      if (state.gk1 === oldName) state.gk1 = newName;
+      if (state.gk2 === oldName) state.gk2 = newName;
+      state.kickoff_starters = state.kickoff_starters.map(name => name === oldName ? newName : name);
+    }
+
+    function renderPlayerList() {
+      els.playerList.innerHTML = "";
+      for (const player of state.players) {
+        const card = document.createElement("div");
+        card.className = `player-card${player.id === selectedId ? " active" : ""}`;
+
+        const main = document.createElement("div");
+        main.className = "player-main";
+
+        const nameLine = document.createElement("div");
+        nameLine.className = "player-name";
+        const nameInput = document.createElement("input");
+        nameInput.value = player.name;
+        nameInput.placeholder = "Player name";
+        nameInput.addEventListener("focus", () => { selectedId = player.id; render(); });
+        nameInput.addEventListener("change", () => {
+          renamePlayer(player, nameInput.value);
+          render();
+        });
+        nameLine.appendChild(nameInput);
+        main.appendChild(nameLine);
+
+        const checks = document.createElement("div");
+        checks.className = "checks";
+        const starterLabel = document.createElement("label");
+        starterLabel.className = "checkline";
+        const starterBox = document.createElement("input");
+        starterBox.type = "checkbox";
+        starterBox.checked = state.kickoff_starters.includes(player.name);
+        starterBox.addEventListener("change", () => {
+          setStarter(player.name, starterBox.checked);
+          render();
+        });
+        starterLabel.append(starterBox, "Kickoff starter");
+        checks.appendChild(starterLabel);
+        main.appendChild(checks);
+
+        const badges = document.createElement("div");
+        badges.className = "badges";
+        if (player.name && player.name === state.gk1) badges.appendChild(makeBadge("GK1", "gk"));
+        if (player.name && player.name === state.gk2) badges.appendChild(makeBadge("GK2", "gk"));
+        if (player.name && state.kickoff_starters.includes(player.name)) badges.appendChild(makeBadge("Starter", "starter"));
+        for (const pos of player.positions) {
+          badges.appendChild(makeBadge(pos));
+        }
+        main.appendChild(badges);
+
+        const actions = document.createElement("div");
+        actions.className = "player-actions";
+        const selectBtn = document.createElement("button");
+        selectBtn.type = "button";
+        selectBtn.textContent = "Edit";
+        selectBtn.addEventListener("click", () => { selectedId = player.id; render(); });
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "danger";
+        deleteBtn.textContent = "Remove";
+        deleteBtn.addEventListener("click", () => removePlayer(player));
+        actions.append(selectBtn, deleteBtn);
+
+        card.append(main, actions);
+        els.playerList.appendChild(card);
+      }
+    }
+
+    function makeBadge(text, extraClass = "") {
+      const badge = document.createElement("span");
+      badge.className = `badge ${extraClass}`.trim();
+      badge.textContent = text;
+      return badge;
+    }
+
+    function renderSelectedPlayerPanel() {
+      const player = selectedPlayer();
+      els.selectedPlayerPanel.innerHTML = "";
+      if (!player) {
+        els.selectedPlayerPanel.textContent = "Add a player to start defining positions.";
+        return;
+      }
+
+      const title = document.createElement("div");
+      title.innerHTML = `<strong>Editing:</strong> ${escapeHtml(player.name || "Unnamed player")}`;
+
+      const list = document.createElement("div");
+      list.className = "position-list";
+      if (player.positions.length === 0) {
+        const empty = document.createElement("span");
+        empty.className = "hint";
+        empty.textContent = "No positions yet. Click the pitch positions below.";
+        list.appendChild(empty);
+      } else {
+        for (const pos of player.positions) {
+          const pill = document.createElement("span");
+          pill.className = "position-pill";
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.textContent = "×";
+          remove.title = `Remove ${pos}`;
+          remove.addEventListener("click", () => {
+            player.positions = player.positions.filter(p => p !== pos);
+            render();
+          });
+          pill.append(pos, remove);
+          list.appendChild(pill);
+        }
+      }
+
+      const controls = document.createElement("div");
+      controls.className = "row";
+      const clear = document.createElement("button");
+      clear.type = "button";
+      clear.textContent = "Clear positions";
+      clear.addEventListener("click", () => { player.positions = []; render(); });
+      controls.append(clear);
+
+      els.selectedPlayerPanel.append(title, list, controls);
+    }
+
+    function computePositionCoverage() {
+      const namedPlayers = state.players.filter(player => player.name.trim());
+      const coverage = Object.fromEntries(
+        OUTFIELD_POSITIONS.map(pos => [pos, namedPlayers.filter(player => player.positions.includes(pos))])
+      );
+      return coverage;
+    }
+
+    function selectPlayerById(playerId) {
+      selectedId = playerId;
+      render();
+    }
+
+    function coverageStatus(count) {
+      if (count <= 3) return { text: "Low", className: "low" };
+      if (count >= 7) return { text: "Crowded", className: "crowded" };
+      return { text: "OK", className: "ok" };
+    }
+
+    function togglePlayerPosition(player, pos) {
+      if (player.positions.includes(pos)) {
+        player.positions = player.positions.filter(p => p !== pos);
+      } else {
+        player.positions.push(pos);
+      }
+      selectedId = player.id;
+      render();
+    }
+
+    function renderCoverage() {
+      const coverage = computePositionCoverage();
+      const totalPlayers = Math.max(1, playerNames().length);
+      const warnings = [];
+
+      for (const pos of OUTFIELD_POSITIONS) {
+        const count = coverage[pos].length;
+        if (count === 0) warnings.push(`${pos} has no players defined`);
+        else if (count === 1) warnings.push(`${pos} has only one player defined`);
+      }
+
+      els.coveragePanel.innerHTML = "";
+
+      const heading = document.createElement("div");
+      heading.innerHTML = `<h3>Position coverage</h3><p class="hint">Bars use the full roster as the scale. Click matrix cells to toggle a player-position choice.</p>`;
+
+      const grid = document.createElement("div");
+      grid.className = "coverage-grid";
+      for (const pos of OUTFIELD_POSITIONS) {
+        const count = coverage[pos].length;
+        const status = coverageStatus(count);
+        const row = document.createElement("div");
+        row.className = "coverage-row";
+        row.innerHTML = `
+          <span class="coverage-code">${pos}</span>
+          <span class="coverage-bar"><span class="coverage-fill" style="width: ${(count / totalPlayers) * 100}%"></span></span>
+          <span class="coverage-count">${count}/${totalPlayers} <span class="coverage-label ${status.className}">${status.text}</span></span>
+        `;
+        grid.appendChild(row);
+      }
+
+      const lineSummary = document.createElement("div");
+      lineSummary.className = "line-summary";
+      const lineGroups = [
+        ["Defence", ["LB", "RB"]],
+        ["Midfield", ["LM", "CM", "RM"]],
+        ["Attack", ["ST"]]
+      ];
+      for (const [label, positions] of lineGroups) {
+        const card = document.createElement("div");
+        card.className = "line-card";
+        card.innerHTML = `<strong>${label}</strong>${positions.map(pos => `${pos} ${coverage[pos].length}`).join(" · ")}`;
+        lineSummary.appendChild(card);
+      }
+
+      const matrixWrap = document.createElement("div");
+      matrixWrap.className = "matrix-wrap";
+      const table = document.createElement("table");
+      table.className = "coverage-matrix";
+      table.innerHTML = `<thead><tr><th>Player</th>${OUTFIELD_POSITIONS.map(pos => `<th>${pos}</th>`).join("")}</tr></thead>`;
+      const tbody = document.createElement("tbody");
+      for (const player of state.players.filter(p => p.name.trim())) {
+        const row = document.createElement("tr");
+        if (player.id === selectedId) row.className = "active";
+        const nameCell = document.createElement("td");
+        nameCell.textContent = player.name;
+        nameCell.title = "Click to edit this player";
+        nameCell.addEventListener("click", () => selectPlayerById(player.id));
+        row.appendChild(nameCell);
+
+        for (const pos of OUTFIELD_POSITIONS) {
+          const cell = document.createElement("td");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `matrix-cell${player.positions.includes(pos) ? " on" : ""}`;
+          button.textContent = player.positions.includes(pos) ? "✓" : "–";
+          button.title = `${player.name}: toggle ${pos}`;
+          button.addEventListener("click", () => togglePlayerPosition(player, pos));
+          cell.appendChild(button);
+          row.appendChild(cell);
+        }
+        tbody.appendChild(row);
+      }
+      table.appendChild(tbody);
+      matrixWrap.appendChild(table);
+
+      els.coveragePanel.append(heading, grid, lineSummary);
+      if (warnings.length) {
+        const warning = document.createElement("div");
+        warning.className = "coverage-warning";
+        warning.textContent = warnings.join(" · ");
+        els.coveragePanel.appendChild(warning);
+      }
+      els.coveragePanel.appendChild(matrixWrap);
+    }
+
+    function renderPitch() {
+      const player = selectedPlayer();
+      document.querySelectorAll(".pos").forEach(posEl => {
+        const pos = posEl.dataset.pos;
+        const selected = player ? player.positions.includes(pos) : false;
+        posEl.classList.toggle("selected", selected);
+        posEl.querySelector(".rank").textContent = selected ? "✓" : "";
+      });
+    }
+
+    function validateConfig(config) {
+      const errors = [];
+      const rawNames = state.players.map(player => player.name.trim()).filter(Boolean);
+      const duplicateNames = [...new Set(rawNames.filter((name, idx) => rawNames.indexOf(name) !== idx))];
+      const names = Object.keys(config.players);
+      const uniqueNames = new Set(names);
+
+      if (!config.game_id) errors.push("game_id must be a non-empty string");
+      if (!Number.isInteger(config.game_minutes) || config.game_minutes <= 0) {
+        errors.push("game_minutes must be a positive integer");
+      }
+      if (duplicateNames.length) errors.push(`players contains duplicate names: ${duplicateNames.join(", ")}`);
+      if (names.length < 7 || names.length > 11) errors.push(`player count must be 7..11, got ${names.length}`);
+
+      if (!uniqueNames.has(config.gk1)) errors.push(`gk1 '${config.gk1}' is not in players`);
+      if (!uniqueNames.has(config.gk2)) errors.push(`gk2 '${config.gk2}' is not in players`);
+      if (config.gk1 && config.gk1 === config.gk2) errors.push("gk1 and gk2 must be different players");
+
+      if (!Array.isArray(config.kickoff_starters) || config.kickoff_starters.length !== 7) {
+        errors.push(`kickoff_starters must have exactly 7 names, got ${config.kickoff_starters.length}`);
+      }
+      if (new Set(config.kickoff_starters).size !== config.kickoff_starters.length) {
+        errors.push("kickoff_starters contains duplicates");
+      }
+      const unknownStarters = config.kickoff_starters.filter(name => !uniqueNames.has(name));
+      if (unknownStarters.length) errors.push(`kickoff_starters has unknown players: ${unknownStarters.join(", ")}`);
+      if (config.gk1 && !config.kickoff_starters.includes(config.gk1)) errors.push("kickoff_starters must include gk1");
+      if (config.gk2 && !config.kickoff_starters.includes(config.gk2)) errors.push("kickoff_starters must include gk2");
+
+      for (const [name, info] of Object.entries(config.players)) {
+        if (!name.trim()) errors.push("player names must be non-empty");
+        if (!Array.isArray(info.positions) || info.positions.length === 0) {
+          errors.push(`${name || "Unnamed player"}: positions must be a non-empty list`);
+        }
+        const invalid = (info.positions ?? []).filter(pos => !OUTFIELD_POSITIONS.includes(pos));
+        if (invalid.length) errors.push(`${name}: invalid preferred positions: ${invalid.join(", ")}`);
+        if (new Set(info.positions ?? []).size !== (info.positions ?? []).length) {
+          errors.push(`${name}: positions contains duplicates`);
+        }
+      }
+
+      return errors;
+    }
+
+    function renderOutput() {
+      const config = stateToConfig();
+      const errors = validateConfig(config);
+      els.outputJson.textContent = JSON.stringify(config, null, 2);
+      els.importText.value = els.importText.value || JSON.stringify(config, null, 2);
+
+      if (errors.length === 0) {
+        els.status.className = "status ok";
+        els.status.textContent = "Config is valid.";
+      } else {
+        els.status.className = "status bad";
+        els.status.innerHTML = `<strong>Fix ${errors.length} issue${errors.length === 1 ? "" : "s"}:</strong><ul class="errors">${errors.map(error => `<li>${escapeHtml(error)}</li>`).join("")}</ul>`;
+      }
+    }
+
+    function render() {
+      ensureSelectedPlayer();
+      syncTopInputsFromState();
+      syncKeeperSelects();
+      renderPlayerList();
+      renderSelectedPlayerPanel();
+      renderPitch();
+      renderCoverage();
+      renderOutput();
+    }
+
+    function removePlayer(player) {
+      state.players = state.players.filter(p => p.id !== player.id);
+      state.kickoff_starters = state.kickoff_starters.filter(name => name !== player.name);
+      if (state.gk1 === player.name) state.gk1 = "";
+      if (state.gk2 === player.name) state.gk2 = "";
+      ensureSelectedPlayer();
+      render();
+    }
+
+    function addPlayer() {
+      const used = new Set(playerNames());
+      let idx = state.players.length + 1;
+      let name = `Player${String(idx).padStart(2, "0")}`;
+      while (used.has(name)) {
+        idx += 1;
+        name = `Player${String(idx).padStart(2, "0")}`;
+      }
+      const player = { id: makeId(), name, positions: ["CM"] };
+      state.players.push(player);
+      selectedId = player.id;
+      render();
+    }
+
+    function togglePosition(pos) {
+      if (!OUTFIELD_POSITIONS.includes(pos)) return;
+      const player = selectedPlayer();
+      if (!player) return;
+      if (player.positions.includes(pos)) {
+        player.positions = player.positions.filter(p => p !== pos);
+      } else {
+        player.positions.push(pos);
+      }
+      render();
+    }
+
+    function loadConfig(config) {
+      state = configToState(config);
+      selectedId = state.players[0]?.id ?? null;
+      els.importText.value = JSON.stringify(config, null, 2);
+      render();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    els.gameId.addEventListener("input", () => {
+      state.game_id = els.gameId.value;
+      renderOutput();
+    });
+
+    els.gameMinutes.addEventListener("input", () => {
+      state.game_minutes = Number(els.gameMinutes.value);
+      renderOutput();
+    });
+
+    els.gk1.addEventListener("change", () => {
+      state.gk1 = els.gk1.value;
+      if (state.gk1) setStarter(state.gk1, true);
+      render();
+    });
+
+    els.gk2.addEventListener("change", () => {
+      state.gk2 = els.gk2.value;
+      if (state.gk2) setStarter(state.gk2, true);
+      render();
+    });
+
+    els.addPlayer.addEventListener("click", addPlayer);
+
+    els.sortPlayers.addEventListener("click", () => {
+      state.players.sort((a, b) => a.name.localeCompare(b.name));
+      render();
+    });
+
+    document.querySelectorAll(".pos").forEach(posEl => {
+      posEl.addEventListener("click", () => togglePosition(posEl.dataset.pos));
+    });
+
+    els.copyJson.addEventListener("click", async () => {
+      const text = els.outputJson.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        els.copyJson.textContent = "Copied";
+        setTimeout(() => { els.copyJson.textContent = "Copy JSON"; }, 1000);
+      } catch (_err) {
+        window.prompt("Copy JSON:", text);
+      }
+    });
+
+    els.downloadJson.addEventListener("click", () => {
+      const config = stateToConfig();
+      const fileName = `${config.game_id || "formation_config"}.json`;
+      const blob = new Blob([JSON.stringify(config, null, 2) + "\n"], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    els.loadJson.addEventListener("click", () => {
+      try {
+        loadConfig(JSON.parse(els.importText.value));
+      } catch (err) {
+        alert(`Could not parse JSON: ${err.message}`);
+      }
+    });
+
+    els.loadSample.addEventListener("click", () => loadConfig(sampleConfig));
+
+    els.fileInput.addEventListener("change", async () => {
+      const file = els.fileInput.files?.[0];
+      if (!file) return;
+      try {
+        loadConfig(JSON.parse(await file.text()));
+      } catch (err) {
+        alert(`Could not load JSON file: ${err.message}`);
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
