@@ -414,6 +414,188 @@
       font-size: 12px;
     }
 
+    .solver-preview {
+      display: grid;
+      gap: 10px;
+    }
+
+    .solver-preview table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .solver-preview th,
+    .solver-preview td {
+      padding: 6px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .solver-preview th { background: #f9fafb; }
+
+    .solution-segments {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+    }
+
+    .solution-card {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .solution-title { font-weight: 850; }
+
+    .solution-pitch {
+      position: relative;
+      aspect-ratio: 1 / 1.12;
+      border: 2px solid var(--pitch-line);
+      border-radius: 12px;
+      background:
+        linear-gradient(to bottom, transparent 49.6%, var(--pitch-line) 49.6%, var(--pitch-line) 50.4%, transparent 50.4%),
+        radial-gradient(circle at center, transparent 0 8%, var(--pitch-line) 8.1% 8.9%, transparent 9%),
+        var(--pitch);
+      overflow: hidden;
+    }
+
+    .solution-pos {
+      position: absolute;
+      width: 74px;
+      min-height: 42px;
+      transform: translate(-50%, -50%);
+      display: grid;
+      place-items: center;
+      padding: 5px;
+      border: 1px solid #111827;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      text-align: center;
+      font-size: 10px;
+      font-weight: 750;
+      line-height: 1.15;
+    }
+
+    .solution-pos.incoming {
+      border-width: 3px;
+      border-color: #111827;
+      box-shadow: 0 0 0 3px #fff, 0 0 0 6px #111827;
+    }
+
+    .solution-pos.moved {
+      outline: 3px dashed #111827;
+      outline-offset: 4px;
+    }
+
+    .solution-pos.incoming.moved {
+      box-shadow: 0 0 0 3px #fff, 0 0 0 6px #111827;
+      outline: 3px dashed #111827;
+      outline-offset: 8px;
+    }
+
+    .solution-pos strong { font-size: 11px; }
+    .solution-pos[data-pos="GK"] { left: 50%; top: 91%; }
+    .solution-pos[data-pos="LB"] { left: 30%; top: 70%; }
+    .solution-pos[data-pos="RB"] { left: 70%; top: 70%; }
+    .solution-pos[data-pos="LM"] { left: 21%; top: 46%; }
+    .solution-pos[data-pos="CM"] { left: 50%; top: 46%; }
+    .solution-pos[data-pos="RM"] { left: 79%; top: 46%; }
+    .solution-pos[data-pos="ST"] { left: 50%; top: 20%; }
+
+    .solution-bench,
+    .solution-markers {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .print-half-sheets { display: none; }
+
+    .print-half-sheet {
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .print-half-sheet:last-child {
+      break-after: auto;
+      page-break-after: auto;
+    }
+
+    .print-sheet-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .print-sheet-table th,
+    .print-sheet-table td {
+      padding: 5px;
+      border: 1px solid #9ca3af;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .print-sheet-table th {
+      background: #f3f4f6;
+      font-weight: 850;
+    }
+
+    .print-marker {
+      font-weight: 850;
+    }
+
+    .print-marker.incoming { text-decoration: underline; }
+    .print-marker.moved { font-style: italic; }
+
+    .print-pitch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .print-pitch-card {
+      display: grid;
+      gap: 4px;
+      padding: 6px;
+      border: 1px solid #9ca3af;
+      border-radius: 8px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .print-pitch-card .solution-title,
+    .print-pitch-card .solution-bench,
+    .print-pitch-card .solution-markers {
+      font-size: 9px;
+    }
+
+    .print-pitch-card .solution-pitch {
+      aspect-ratio: 1 / 0.82;
+      border-width: 1px;
+      border-radius: 8px;
+    }
+
+    .print-pitch-card .solution-pos {
+      width: 52px;
+      min-height: 28px;
+      padding: 3px;
+      border-radius: 7px;
+      font-size: 8px;
+    }
+
+    .print-pitch-card .solution-pos strong { font-size: 8px; }
+
+    .solution-legend {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
     .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; }
     .checkline { display: flex; align-items: center; gap: 7px; font-size: 13px; }
     .checkline input { width: auto; }
@@ -454,6 +636,66 @@
       .split { grid-template-columns: 1fr; }
       .pos { min-height: 54px; font-size: 12px; }
       .pos .code { font-size: 18px; }
+    }
+
+    @media print {
+      body.print-solution { background: #fff; padding: 0; }
+      body.print-solution header,
+      body.print-solution main > section:not(.output-col),
+      body.print-solution .output-col > :not(#solverPreview),
+      body.print-solution #solverPreview > :not(.print-half-sheets) {
+        display: none !important;
+      }
+      body.print-solution main {
+        display: block;
+        padding: 0;
+      }
+      body.print-solution section,
+      body.print-solution .panel,
+      body.print-solution .solution-card {
+        box-shadow: none;
+      }
+      body.print-solution .output-col {
+        border: 0;
+        padding: 0;
+      }
+      body.print-solution .print-half-sheets {
+        display: block;
+      }
+      body.print-solution .print-half-sheet {
+        min-height: 100vh;
+        padding: 10mm;
+      }
+      body.print-solution .print-sheet-table {
+        font-size: 9pt;
+      }
+      body.print-solution .print-sheet-table th,
+      body.print-solution .print-sheet-table td {
+        padding: 2mm 1.5mm;
+      }
+      body.print-solution .print-pitch-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      body.print-solution .print-pitch-card {
+        padding: 2mm;
+      }
+      body.print-solution .print-pitch-card .solution-title,
+      body.print-solution .print-pitch-card .solution-bench,
+      body.print-solution .print-pitch-card .solution-markers {
+        font-size: 7pt;
+      }
+      body.print-solution .print-pitch-card .solution-pitch {
+        height: 48mm;
+        aspect-ratio: auto;
+      }
+      body.print-solution .print-pitch-card .solution-pos {
+        width: 16mm;
+        min-height: 8mm;
+        font-size: 6pt;
+      }
+      body.print-solution .print-pitch-card .solution-pos strong {
+        font-size: 6pt;
+      }
     }
   </style>
 </head>
@@ -543,6 +785,43 @@
 
     <section class="stack output-col">
       <div>
+        <h2>Solver preview</h2>
+        <p class="hint">Run the local FastAPI backend to preview real OR-Tools solver output. Start it with <code>uv run formation-graphics-web</code>.</p>
+      </div>
+
+      <div class="split">
+        <label>
+          Backend URL
+          <input id="backendUrl" value="http://127.0.0.1:8000">
+        </label>
+        <label>
+          Preset
+          <select id="solverPreset">
+            <option value="balanced">balanced</option>
+            <option value="five-minute">five-minute</option>
+            <option value="steady">steady</option>
+            <option value="compromise">compromise</option>
+            <option value="low-chaos">low-chaos</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="split">
+        <label>
+          Max consecutive bench override
+          <input id="maxConsecutiveBench" type="number" min="0" step="1" placeholder="Use preset default">
+        </label>
+        <div class="row">
+          <button id="loadPresets" type="button">Load presets</button>
+          <button id="solveBackend" class="primary" type="button">Solve preview</button>
+          <button id="printHalfSheets" type="button" disabled>Print half sheets</button>
+        </div>
+      </div>
+
+      <div id="solverStatus" class="status">Backend not contacted yet.</div>
+      <div id="solverPreview" class="solver-preview"></div>
+
+      <div>
         <h2>JSON output</h2>
         <p class="hint">Save this as <code>config/game_config.local.json</code> or another config file and run the CLI with <code>--config</code>.</p>
       </div>
@@ -595,6 +874,14 @@
       playerList: document.getElementById("playerList"),
       selectedPlayerPanel: document.getElementById("selectedPlayerPanel"),
       coveragePanel: document.getElementById("coveragePanel"),
+      backendUrl: document.getElementById("backendUrl"),
+      solverPreset: document.getElementById("solverPreset"),
+      maxConsecutiveBench: document.getElementById("maxConsecutiveBench"),
+      loadPresets: document.getElementById("loadPresets"),
+      solveBackend: document.getElementById("solveBackend"),
+      printHalfSheets: document.getElementById("printHalfSheets"),
+      solverStatus: document.getElementById("solverStatus"),
+      solverPreview: document.getElementById("solverPreview"),
       outputJson: document.getElementById("outputJson"),
       status: document.getElementById("status"),
       copyJson: document.getElementById("copyJson"),
@@ -604,6 +891,8 @@
       loadSample: document.getElementById("loadSample"),
       fileInput: document.getElementById("fileInput")
     };
+
+    let lastSolution = null;
 
     function makeId() {
       return `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -1051,6 +1340,242 @@
       render();
     }
 
+    function backendUrl(path) {
+      return `${els.backendUrl.value.replace(/\/$/, "")}${path}`;
+    }
+
+    async function loadBackendPresets() {
+      els.solverStatus.className = "status";
+      els.solverStatus.textContent = "Loading presets…";
+      const response = await fetch(backendUrl("/api/presets"));
+      if (!response.ok) throw new Error(`Backend returned ${response.status}`);
+      const body = await response.json();
+      const current = els.solverPreset.value;
+      els.solverPreset.innerHTML = "";
+      for (const preset of Object.keys(body.presets).sort()) {
+        const option = document.createElement("option");
+        option.value = preset;
+        option.textContent = preset;
+        els.solverPreset.appendChild(option);
+      }
+      if ([...els.solverPreset.options].some(option => option.value === current)) {
+        els.solverPreset.value = current;
+      }
+      els.solverStatus.className = "status ok";
+      els.solverStatus.textContent = `Loaded ${Object.keys(body.presets).length} presets.`;
+    }
+
+    async function solveWithBackend() {
+      const config = stateToConfig();
+      const errors = validateConfig(config);
+      if (errors.length) {
+        throw new Error(`Config is invalid: ${errors[0]}`);
+      }
+
+      const body = {
+        config,
+        preset: els.solverPreset.value,
+      };
+      if (els.maxConsecutiveBench.value !== "") {
+        body.max_consecutive_bench = Number(els.maxConsecutiveBench.value);
+      }
+
+      els.solverStatus.className = "status";
+      els.solverStatus.textContent = "Solving…";
+      els.solverPreview.textContent = "";
+      els.printHalfSheets.disabled = true;
+
+      const response = await fetch(backendUrl("/api/solve"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const responseBody = await response.json();
+      if (!response.ok) {
+        throw new Error(responseBody.detail || `Backend returned ${response.status}`);
+      }
+
+      renderSolverPreview(responseBody);
+      els.solverStatus.className = "status ok";
+      els.solverStatus.textContent = `Solved ${responseBody.game_id} with ${responseBody.preset}: ${responseBody.summary.segment_count} segments, ${responseBody.summary.substitution_events} substitution events, ${responseBody.solver.wall_time_seconds}s solver time.`;
+    }
+
+    function renderSolverPreview(solution) {
+      lastSolution = solution;
+      els.printHalfSheets.disabled = false;
+
+      const summary = document.createElement("div");
+      summary.className = "status ok";
+      const maxBenchRunBlocks = solution.summary.max_bench_run_blocks ?? solution.summary.max_bench_run_segments ?? 0;
+      summary.textContent = `Global blocks: ${solution.global_block_count}. Max consecutive bench option: ${solution.solver.options.max_consecutive_bench_blocks}. Solver time: ${solution.solver.wall_time_seconds}s. Cached: ${solution.solver.cached ? "yes" : "no"}. Actual max bench run: ${maxBenchRunBlocks} global block(s). Total on/off toggles: ${solution.summary.total_on_off_toggles}.`;
+
+      const legend = document.createElement("div");
+      legend.className = "solution-legend";
+      legend.textContent = "Solid ring = coming on. Dashed ring = position change.";
+
+      const segmentGrid = document.createElement("div");
+      segmentGrid.className = "solution-segments";
+      for (const segment of solution.segments) {
+        segmentGrid.appendChild(renderSolutionSegment(segment));
+      }
+
+      const table = document.createElement("table");
+      table.innerHTML = `
+        <thead>
+          <tr><th>Time</th><th>GK</th><th>Outfield</th><th>Bench</th></tr>
+        </thead>
+      `;
+      const tbody = document.createElement("tbody");
+      for (const segment of solution.segments) {
+        const row = document.createElement("tr");
+        const outfield = ["LB", "RB", "LM", "CM", "RM", "ST"]
+          .map(pos => `${pos}: ${segment.lineup[pos]}`)
+          .join(", ");
+        row.innerHTML = `
+          <td>H${segment.half} ${segment.start_min.toFixed(2)}–${segment.end_min.toFixed(2)}</td>
+          <td>${escapeHtml(segment.lineup.GK)}</td>
+          <td>${escapeHtml(outfield)}</td>
+          <td>${escapeHtml(segment.bench.join(", "))}</td>
+        `;
+        tbody.appendChild(row);
+      }
+      table.appendChild(tbody);
+
+      const statsTable = renderStatsTable(solution.stats);
+      const printSheets = renderPrintHalfSheets(solution);
+
+      els.solverPreview.innerHTML = "";
+      els.solverPreview.append(summary, legend, segmentGrid, table, statsTable, printSheets);
+    }
+
+    function renderPrintHalfSheets(solution) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "print-half-sheets";
+      const halves = [...new Set(solution.segments.map(segment => segment.half))].sort();
+
+      for (const half of halves) {
+        const sheet = document.createElement("section");
+        sheet.className = "print-half-sheet";
+        const title = document.createElement("h2");
+        title.textContent = `${solution.game_id} · Half ${half} rotation sheet`;
+        const legend = document.createElement("div");
+        legend.className = "solution-legend";
+        legend.textContent = "↑ coming on · ↔ position change";
+
+        const table = document.createElement("table");
+        table.className = "print-sheet-table";
+        table.innerHTML = `
+          <thead>
+            <tr><th>Time</th><th>GK</th><th>LB</th><th>RB</th><th>LM</th><th>CM</th><th>RM</th><th>ST</th><th>Bench</th></tr>
+          </thead>
+        `;
+        const tbody = document.createElement("tbody");
+        for (const segment of solution.segments.filter(segment => segment.half === half)) {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${segment.start_min.toFixed(2)}–${segment.end_min.toFixed(2)}</td>
+            ${["GK", "LB", "RB", "LM", "CM", "RM", "ST"].map(pos => `<td>${formatPrintPlayer(segment, pos)}</td>`).join("")}
+            <td>${escapeHtml(segment.bench.join(", "))}</td>
+          `;
+          tbody.appendChild(row);
+        }
+        table.appendChild(tbody);
+
+        const pitchGrid = document.createElement("div");
+        pitchGrid.className = "print-pitch-grid";
+        for (const segment of solution.segments.filter(segment => segment.half === half)) {
+          const pitchCard = renderSolutionSegment(segment);
+          pitchCard.classList.add("print-pitch-card");
+          pitchGrid.appendChild(pitchCard);
+        }
+
+        sheet.append(title, legend, table, pitchGrid);
+        wrapper.appendChild(sheet);
+      }
+
+      return wrapper;
+    }
+
+    function formatPrintPlayer(segment, pos) {
+      const player = segment.lineup[pos];
+      const incoming = segment.incoming_players?.includes(player);
+      const moved = segment.moved_players?.includes(player);
+      const markers = `${incoming ? " ↑" : ""}${moved ? " ↔" : ""}`;
+      if (!markers) return escapeHtml(player);
+      const classes = ["print-marker", incoming ? "incoming" : "", moved ? "moved" : ""]
+        .filter(Boolean)
+        .join(" ");
+      return `<span class="${classes}">${escapeHtml(player)}${markers}</span>`;
+    }
+
+    function printSolvedHalfSheets() {
+      if (!lastSolution) return;
+      document.body.classList.add("print-solution");
+      window.print();
+      setTimeout(() => document.body.classList.remove("print-solution"), 0);
+    }
+
+    window.addEventListener("afterprint", () => {
+      document.body.classList.remove("print-solution");
+    });
+
+    function renderStatsTable(stats) {
+      const table = document.createElement("table");
+      table.innerHTML = `
+        <thead>
+          <tr><th>Player</th><th>Playing time</th><th>Bench time</th><th>Played segments</th><th>Bench segments</th><th>Max bench run blocks</th></tr>
+        </thead>
+      `;
+      const tbody = document.createElement("tbody");
+      for (const stat of stats) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${escapeHtml(stat.player)}</td>
+          <td>${Number(stat.total_minutes).toFixed(2)} min</td>
+          <td>${Number(stat.bench_minutes ?? 0).toFixed(2)} min</td>
+          <td>${stat.played_segments}</td>
+          <td>${stat.benched_segments}</td>
+          <td>${stat.max_bench_run_blocks ?? stat.max_bench_run_segments ?? 0}</td>
+        `;
+        tbody.appendChild(row);
+      }
+      table.appendChild(tbody);
+      return table;
+    }
+
+    function renderSolutionSegment(segment) {
+      const card = document.createElement("div");
+      card.className = "solution-card";
+
+      const title = document.createElement("div");
+      title.className = "solution-title";
+      title.textContent = `H${segment.half} S${segment.half_segment_index} · ${segment.start_min.toFixed(2)}–${segment.end_min.toFixed(2)} min`;
+
+      const pitch = document.createElement("div");
+      pitch.className = "solution-pitch";
+      for (const pos of ["GK", "LB", "RB", "LM", "CM", "RM", "ST"]) {
+        const player = segment.lineup[pos];
+        const marker = document.createElement("div");
+        marker.className = "solution-pos";
+        if (segment.incoming_players?.includes(player)) marker.classList.add("incoming");
+        if (segment.moved_players?.includes(player)) marker.classList.add("moved");
+        marker.dataset.pos = pos;
+        marker.innerHTML = `<strong>${pos}</strong><br>${escapeHtml(player)}`;
+        pitch.appendChild(marker);
+      }
+
+      const bench = document.createElement("div");
+      bench.className = "solution-bench";
+      bench.textContent = `Bench: ${segment.bench.length ? segment.bench.join(", ") : "None"}`;
+
+      const markers = document.createElement("div");
+      markers.className = "solution-markers";
+      markers.textContent = `Coming on: ${segment.incoming_players?.length ? segment.incoming_players.join(", ") : "None"}. Position changes: ${segment.moved_players?.length ? segment.moved_players.join(", ") : "None"}.`;
+
+      card.append(title, pitch, bench, markers);
+      return card;
+    }
+
     function escapeHtml(value) {
       return String(value)
         .replaceAll("&", "&amp;")
@@ -1125,6 +1650,29 @@
     });
 
     els.loadSample.addEventListener("click", () => loadConfig(sampleConfig));
+
+    els.loadPresets.addEventListener("click", async () => {
+      try {
+        await loadBackendPresets();
+      } catch (err) {
+        els.solverStatus.className = "status bad";
+        els.solverStatus.textContent = `Could not load presets: ${err.message}`;
+      }
+    });
+
+    els.solveBackend.addEventListener("click", async () => {
+      els.solveBackend.disabled = true;
+      try {
+        await solveWithBackend();
+      } catch (err) {
+        els.solverStatus.className = "status bad";
+        els.solverStatus.textContent = `Could not solve: ${err.message}`;
+      } finally {
+        els.solveBackend.disabled = false;
+      }
+    });
+
+    els.printHalfSheets.addEventListener("click", printSolvedHalfSheets);
 
     els.fileInput.addEventListener("change", async () => {
       const file = els.fileInput.files?.[0];

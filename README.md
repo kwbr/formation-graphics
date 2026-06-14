@@ -68,6 +68,38 @@ uv run formation-graphics solver --max-consecutive-bench 1
 
 Published artifacts are written to `output/<game_id>/`, `output/<game_id>_solver/`, and preset-specific solver directories such as `output/<game_id>_solver_steady/`, `output/<game_id>_solver_compromise/`, `output/<game_id>_solver_five_minute/`, or `output/<game_id>_solver_low_chaos/`.
 
+## Local web API
+
+Run the FastAPI backend and browser UI:
+
+```bash
+uv run formation-graphics-web
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000/
+```
+
+Useful endpoints:
+
+```text
+GET  /api/health
+GET  /api/presets
+POST /api/solve
+```
+
+Example solve request body:
+
+```json
+{
+  "config": { "game_id": "...", "game_minutes": 40, "players": {}, "gk1": "...", "gk2": "...", "kickoff_starters": [] },
+  "preset": "compromise",
+  "max_consecutive_bench": 1
+}
+```
+
 ## Dev niceties
 
 Run tests with pytest:

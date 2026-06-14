@@ -5,12 +5,15 @@ description = "Generate 7v7 formation graphics, schedules, and printable sheets"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "fastapi>=0.124.0",
     "matplotlib>=3.10.9",
     "ortools>=9.15.6755",
+    "uvicorn[standard]>=0.38.0",
 ]
 
 [project.scripts]
 formation-graphics = "formation_graphics.cli:main"
+formation-graphics-web = "formation_graphics.web:main"
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -22,6 +25,7 @@ exclude = ["output*", "config*"]
 
 [dependency-groups]
 dev = [
+    "httpx2>=0.28.0",
     "playwright>=1.57.0",
     "pytest>=9.0.3",
     "ruff>=0.15.12",
